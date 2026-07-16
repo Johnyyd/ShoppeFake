@@ -7,3 +7,9 @@ uv tool install specify-cli
 specify init my-project
 npx @cobusgreyling/loop-init .
 npx skills add nutlope/hallmark
+
+npx ui-skills
+npx ui-skills start
+npx ui-skills categories
+npx ui-skills list --category motion
+npx ui-skills get baseline-ui
