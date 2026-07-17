@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:confetti/confetti.dart';
@@ -263,8 +264,8 @@ class _CheckoutModalState extends State<CheckoutModal>
   }
 
   Path drawStar(Size size) {
-    // Custom star shape for confetti particles
-    double degToRad(double deg) => deg * (3.1415926535897932 / 180.0);
+    // Custom star shape for confetti particles using exact trigonometry
+    double degToRad(double deg) => deg * (math.pi / 180.0);
     const numberOfPoints = 5;
     final halfWidth = size.width / 2;
     final externalRadius = halfWidth;
@@ -277,18 +278,15 @@ class _CheckoutModalState extends State<CheckoutModal>
 
     for (double step = 0; step < fullAngle; step += degreesPerStep) {
       path.lineTo(
-        halfWidth + externalRadius * _cos(step),
-        halfWidth + externalRadius * _sin(step),
+        halfWidth + externalRadius * math.cos(step),
+        halfWidth + externalRadius * math.sin(step),
       );
       path.lineTo(
-        halfWidth + internalRadius * _cos(step + halfDegreesPerStep),
-        halfWidth + internalRadius * _sin(step + halfDegreesPerStep),
+        halfWidth + internalRadius * math.cos(step + halfDegreesPerStep),
+        halfWidth + internalRadius * math.sin(step + halfDegreesPerStep),
       );
     }
     path.close();
     return path;
   }
-
-  double _cos(double x) => 1 - (x * x) / 2 + (x * x * x * x) / 24;
-  double _sin(double x) => x - (x * x * x) / 6 + (x * x * x * x * x) / 120;
 }
