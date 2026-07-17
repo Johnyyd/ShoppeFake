@@ -1,0 +1,18 @@
+{
+  "attempts": [
+    {
+      "timestamp": "2026-07-16T22:38:00Z",
+      "target": "backend/tests/conftest.py import failure due to eager SQL Server connection",
+      "attempt": 1,
+      "max_attempts": 3,
+      "action": "Move Base.metadata.create_all to lifespan handler in main.py and test DB connection with fallback in database.py"
+    },
+    {
+      "timestamp": "2026-07-16T22:39:00Z",
+      "target": "passlib 1.7.4 incompatibility with bcrypt 5.0.0 ValueError on detect_wrap_bug",
+      "attempt": 2,
+      "max_attempts": 3,
+      "action": "Pin bcrypt<4.0.0 in requirements.txt and reinstall in venv"
+    }
+  ]
+}

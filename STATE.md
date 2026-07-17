@@ -1,8 +1,9 @@
 # Loop State — My Project
 
-Last run: never
+Last run: 2026-07-16T22:45:00Z (Phase 5 E2E Validation Complete)
 
 ## High Priority (loop is acting or waiting on human)
+- **TAILSCALE_PUBLIC_URL**: `http://100.80.37.62:8000` (Tailscale node `tringuyen`; local fallback `http://localhost:8000`)
 
 ## Watch List
 

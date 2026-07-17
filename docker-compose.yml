@@ -1,0 +1,87 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: shoppe_mssql
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "SuperSecurePass123!"
+      MSSQL_PID: "Developer"
+    volumes:
+      - mssql_data:/var/opt/mssql
+      - ./database:/init_scripts
+    networks:
+      - shoppe_net
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P SuperSecurePass123! -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: shoppe_api
+    ports:
+      - "2000:8000"
+    environment:
+      - DB_SERVER=mssql
+      - DB_PORT=1433
+      - DB_USER=sa
+      - DB_PASSWORD=SuperSecurePass123!
+      - DB_NAME=ShoppeDB
+      - JWT_SECRET_KEY=super-secret-dopamine-key-change-in-prod-2026
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+    depends_on:
+      mssql:
+        condition: service_healthy
+    networks:
+      - shoppe_net
+
+  cube:
+    image: cubejs/cube:latest
+    container_name: shoppe_cube
+    ports:
+      - "2002:4000"
+      - "15432:15432"
+    environment:
+      - CUBEJS_DEV_MODE=${CUBEJS_DEV_MODE:-false}
+      - CUBEJS_DB_TYPE=mssql
+      - CUBEJS_DB_HOST=mssql
+      - CUBEJS_DB_PORT=1433
+      - CUBEJS_DB_NAME=ShoppeDB
+      - CUBEJS_DB_USER=sa
+      - CUBEJS_DB_PASS=SuperSecurePass123!
+      - CUBEJS_API_SECRET=super-secret-cube-api-key-2026
+    volumes:
+      - ./cube/conf:/cube/conf
+    depends_on:
+      mssql:
+        condition: service_healthy
+    networks:
+      - shoppe_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: shoppe_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/html:/usr/share/nginx/html:ro
+    depends_on:
+      - api
+      - cube
+    networks:
+      - shoppe_net
+
+volumes:
+  mssql_data:
+
+networks:
+  shoppe_net:
+    driver: bridge
