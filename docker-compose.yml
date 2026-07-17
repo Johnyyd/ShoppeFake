@@ -25,6 +25,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: shoppe_api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "2000:8000"
     environment:
@@ -36,6 +37,8 @@ services:
       - JWT_SECRET_KEY=super-secret-dopamine-key-change-in-prod-2026
       - JWT_ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+    volumes:
+      - ./backend:/app
     depends_on:
       mssql:
         condition: service_healthy

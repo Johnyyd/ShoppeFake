@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/shoppe_provider.dart';
 import 'screens/auth_screen.dart';
-import 'screens/catalog_screen.dart';
+import 'screens/main_navigation_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,26 +22,11 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'ShoppeFake Dopamine Booster',
             debugShowCheckedModeBanner: false,
-            themeMode: ThemeMode.dark,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: const Color(0xFF6A11CB),
-                secondary: const Color(0xFF00D2FF),
-                brightness: Brightness.light,
-              ),
-              useMaterial3: true,
-            ),
-            darkTheme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: const Color(0xFF6A11CB),
-                secondary: const Color(0xFF00D2FF),
-                brightness: Brightness.dark,
-              ),
-              scaffoldBackgroundColor: const Color(0xFF101014),
-              useMaterial3: true,
-            ),
+            themeMode: ThemeMode.dark, // Default to OLED Dark High-Contrast
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
             home: provider.isAuthenticated
-                ? const CatalogScreen()
+                ? const MainNavigationScreen()
                 : const AuthScreen(),
           );
         },

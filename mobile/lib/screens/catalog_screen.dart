@@ -2,15 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/shoppe_provider.dart';
+import '../models/product.dart';
+import '../theme/app_theme.dart';
 import '../widgets/product_card.dart';
 import '../widgets/checkout_modal.dart';
+import '../widgets/checkout_confirm_modal.dart';
 
 class CatalogScreen extends StatelessWidget {
   const CatalogScreen({super.key});
 
-  void _handleBuy(BuildContext context, int productId) async {
+  void _handleBuyClick(BuildContext context, VirtualProduct product) {
+    HapticFeedback.mediumImpact();
+    CheckoutConfirmModal.show(
+      context,
+      product: product,
+      onConfirm: (voucherCode) => _executeCheckout(context, product.id, voucherCode),
+    );
+  }
+
+  void _executeCheckout(BuildContext context, int productId, String? voucherCode) async {
     final provider = Provider.of<ShoppeProvider>(context, listen: false);
-    final result = await provider.checkoutProduct(productId);
+    final result = await provider.checkoutProduct(productId, voucherCode: voucherCode);
 
     if (result != null && context.mounted) {
       showDialog(
@@ -40,33 +52,46 @@ class CatalogScreen extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF13131A) : const Color(0xFFFAFAFB),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: Row(
           children: [
-            const Icon(Icons.bolt, color: Colors.amber, size: 24),
-            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryOrange,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.shopping_bag, color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 8),
             Text(
               user?.username ?? 'Shopper',
-              style: const TextStyle(fontWeight: FontWeight.w800),
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 18,
+                color: isDark ? Colors.white : const Color(0xFF111827),
+              ),
             ),
           ],
         ),
         actions: [
           // Dopamine Level badge
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
-              color: Colors.amber.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.amber.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
             ),
             alignment: Alignment.center,
             child: Row(
               children: [
-                const Icon(Icons.flash_on, color: Colors.amber, size: 16),
-                const SizedBox(width: 4),
+                const Icon(Icons.bolt, color: Colors.amber, size: 15),
+                const SizedBox(width: 3),
                 Text(
                   '${user?.dopamineLevel ?? 0} HITS',
                   style: const TextStyle(
@@ -81,36 +106,45 @@ class CatalogScreen extends StatelessWidget {
           ),
           // Virtual Balance badge
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: theme.colorScheme.secondary.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
+              color: AppTheme.primaryOrange.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppTheme.primaryOrange.withValues(alpha: 0.3)),
             ),
             alignment: Alignment.center,
-            child: Text(
-              '🪙 ${user?.virtualBalance.toStringAsFixed(0) ?? "0"}',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                color: theme.colorScheme.secondary,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
+            child: Row(
+              children: [
+                const Text('🪙 ', style: TextStyle(fontSize: 12)),
+                Text(
+                  user?.virtualBalance.toStringAsFixed(0) ?? "0",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: AppTheme.primaryOrange,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.logout, size: 20),
+            icon: Icon(Icons.logout, size: 20, color: isDark ? Colors.white70 : Colors.black87),
             onPressed: () {
               HapticFeedback.lightImpact();
               provider.logout();
             },
-            tooltip: 'Logout',
+            tooltip: 'Đăng xuất',
           ),
         ],
       ),
       body: provider.isLoading && provider.products.isEmpty
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryOrange),
+            )
           : RefreshIndicator(
+              color: AppTheme.primaryOrange,
               onRefresh: () async {
                 HapticFeedback.mediumImpact();
                 await provider.fetchProducts();
@@ -120,34 +154,62 @@ class CatalogScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: Text(
-                        'EXCLUSIVE VIRTUAL ACQUISITIONS',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.0,
-                          color: Colors.grey,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E1E24) : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: AppTheme.primaryOrange.withValues(alpha: 0.2),
                         ),
                       ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.local_fire_department, color: AppTheme.primaryOrange, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'CHỢ ẢO SHOPPE FAKE - SĂN DOPAMINE',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.5,
+                                    color: isDark ? Colors.white : Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Chạm để xem chi tiết & áp mã giảm giá thần tốc',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark ? Colors.white60 : Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 14),
                     Expanded(
                       child: GridView.builder(
                         physics: const AlwaysScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 0.72,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.68,
+                          crossAxisSpacing: 14,
+                          mainAxisSpacing: 14,
                         ),
                         itemCount: provider.products.length,
                         itemBuilder: (context, index) {
                           final product = provider.products[index];
                           return ProductCard(
                             product: product,
-                            onBuyTap: () => _handleBuy(context, product.id),
+                            onBuyTap: () => _handleBuyClick(context, product),
                           );
                         },
                       ),

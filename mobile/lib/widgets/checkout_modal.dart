@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:confetti/confetti.dart';
 import '../models/order.dart';
+import '../theme/app_theme.dart';
 
 class CheckoutModal extends StatefulWidget {
   final CheckoutResult result;
@@ -75,45 +76,51 @@ class _CheckoutModalState extends State<CheckoutModal>
           scale: _scaleAnimation,
           child: Dialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(28),
+              side: BorderSide(
+                color: AppTheme.primaryOrange.withValues(alpha: 0.35),
+                width: 1.5,
+              ),
             ),
             backgroundColor: isDark ? const Color(0xFF181820) : Colors.white,
-            elevation: 20,
+            elevation: 24,
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 64,
-                    height: 64,
+                    width: 72,
+                    height: 72,
                     decoration: BoxDecoration(
-                      color: Colors.amber.withOpacity(0.15),
+                      color: AppTheme.primaryOrange.withValues(alpha: 0.18),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.auto_awesome,
-                      color: Colors.amber,
-                      size: 36,
+                      color: AppTheme.primaryOrange,
+                      size: 40,
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     widget.result.animationTrigger == 'EXTREME_CONFETTI_BURST'
                         ? '🚀 DOPAMINE SURGE!'
-                        : '🎉 ACQUISITION SUCCESS!',
+                        : '🎉 THÀNH CÔNG!',
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 22,
                       fontWeight: FontWeight.w900,
+                      color: AppTheme.primaryOrange,
                       letterSpacing: -0.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Text(
                     widget.result.message,
                     style: TextStyle(
                       fontSize: 14,
+                      height: 1.4,
                       color: isDark ? Colors.white70 : Colors.black87,
                     ),
                     textAlign: TextAlign.center,
@@ -121,33 +128,65 @@ class _CheckoutModalState extends State<CheckoutModal>
                   const SizedBox(height: 20),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                        horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? Colors.white.withOpacity(0.05)
+                          ? Colors.white.withValues(alpha: 0.05)
                           : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: isDark ? Colors.white12 : Colors.black12,
+                      ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    child: Column(
                       children: [
-                        _buildStatColumn(
-                          'Hits Earned',
-                          '+${widget.result.dopamineHitsAwarded} ⚡',
-                          Colors.amber,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildStatColumn(
+                              'Dopamine Nhận',
+                              '+${widget.result.dopamineHitsAwarded} ⚡',
+                              Colors.amber,
+                            ),
+                            Container(
+                              width: 1,
+                              height: 36,
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.1)
+                                  : Colors.grey.shade300,
+                            ),
+                            _buildStatColumn(
+                              'Số Dư Mới',
+                              '🪙 ${widget.result.newVirtualBalance.toStringAsFixed(0)}',
+                              AppTheme.primaryOrange,
+                            ),
+                          ],
                         ),
-                        Container(
-                          width: 1,
-                          height: 32,
-                          color: isDark
-                              ? Colors.white.withOpacity(0.1)
-                              : Colors.grey.shade300,
-                        ),
-                        _buildStatColumn(
-                          'New Balance',
-                          '🪙 ${widget.result.newVirtualBalance.toStringAsFixed(0)}',
-                          theme.colorScheme.secondary,
-                        ),
+                        if (widget.result.discountAmount > 0) ...[
+                          const SizedBox(height: 12),
+                          Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.confirmation_num, color: Colors.green, size: 16),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  "Tiết kiệm được nhờ voucher: -🪙 ${widget.result.discountAmount.toStringAsFixed(0)} xu",
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.green,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -160,19 +199,20 @@ class _CheckoutModalState extends State<CheckoutModal>
                         widget.onDismiss();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
+                        backgroundColor: AppTheme.primaryOrange,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(30),
                         ),
                         elevation: 0,
                       ),
                       child: const Text(
-                        'CONTINUE BROWSING',
+                        'TIẾP TỤC MUA SẮM ẢO',
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
-                          fontSize: 13,
+                          fontSize: 14,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ),
@@ -188,6 +228,7 @@ class _CheckoutModalState extends State<CheckoutModal>
           blastDirectionality: BlastDirectionality.explosive,
           shouldLoop: false,
           colors: const [
+            AppTheme.primaryOrange,
             Colors.amber,
             Colors.purpleAccent,
             Colors.blueAccent,
@@ -211,8 +252,8 @@ class _CheckoutModalState extends State<CheckoutModal>
         Text(
           value,
           style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
             color: color,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
