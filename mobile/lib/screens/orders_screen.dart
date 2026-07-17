@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import '../providers/shoppe_provider.dart';
 import '../models/order.dart';
 import '../widgets/product_image_viewer.dart';
+import '../widgets/product_review_modal.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -49,96 +50,6 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
     }
   }
 
-  void _showReviewDialog(BuildContext context, String productName) {
-    HapticFeedback.lightImpact();
-    int selectedRating = 5;
-    final TextEditingController commentController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            final theme = Theme.of(context);
-            final isDark = theme.brightness == Brightness.dark;
-
-            return AlertDialog(
-              backgroundColor: isDark ? const Color(0xFF1E1E24) : Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-              title: Row(
-                children: [
-                  const Icon(Icons.star, color: Colors.amber, size: 24),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Đánh giá "$productName"',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Chọn số sao hưng phấn nhận ngay +10 Dopamine:'),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (index) {
-                      return GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setDialogState(() => selectedRating = index + 1);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: Icon(
-                            index < selectedRating ? Icons.star : Icons.star_border,
-                            color: Colors.amber,
-                            size: 32,
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: commentController,
-                    maxLines: 3,
-                    style: TextStyle(fontSize: 13, color: isDark ? Colors.white : Colors.black87),
-                    decoration: InputDecoration(
-                      hintText: 'Cảm nhận của bạn khi sở hữu vật phẩm này...',
-                      hintStyle: TextStyle(fontSize: 12, color: isDark ? Colors.white38 : Colors.black38),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    HapticFeedback.heavyImpact();
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('🎉 Đánh giá thành công! Bạn đã nhận thêm +10 HITS Dopamine!'),
-                        backgroundColor: AppTheme.primaryOrange,
-                      ),
-                    );
-                  },
-                  child: const Text('Gửi Đánh Giá'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -314,7 +225,7 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                               width: 64,
                               height: 64,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Container(
+                              errorBuilder: (context, error, stackTrace) => Container(
                                 width: 64,
                                 height: 64,
                                 color: AppTheme.primaryOrange.withValues(alpha: 0.1),
@@ -379,9 +290,18 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                       )
                     else
                       OutlinedButton.icon(
-                        onPressed: () => _showReviewDialog(context, product.name.isNotEmpty ? product.name : 'Sản phẩm'),
+                        onPressed: () {
+                          ProductReviewModal.show(
+                            context,
+                            product: product,
+                            isCompletedOrder: true,
+                            onReviewSubmitted: () {
+                              Provider.of<ShoppeProvider>(context, listen: false).fetchOrders();
+                            },
+                          );
+                        },
                         icon: const Icon(Icons.star, size: 16, color: Colors.amber),
-                        label: const Text('Đánh giá ngay (+10 HITS)'),
+                        label: const Text('Đánh giá nhận quà (+50🪙 & +30⚡)'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.primaryOrange,
                           side: const BorderSide(color: AppTheme.primaryOrange),

@@ -30,7 +30,7 @@ def test_get_products_auto_seeds(client):
     assert response.status_code == 200
     products = response.json()
     assert len(products) >= 5
-    assert any("Sneakers" in p["name"] for p in products)
+    assert any("Sneaker" in p["name"] for p in products)
 
 def test_virtual_checkout_success(client):
     # Register and login
@@ -72,4 +72,96 @@ def test_virtual_checkout_insufficient_balance(client):
     # Third buy should fail due to insufficient balance
     fail_res = client.post("/checkout", json={"product_id": rolex["id"]}, headers=headers)
     assert fail_res.status_code == 400
-    assert "Insufficient virtual balance" in fail_res.json()["detail"]
+    assert "Số dư xu ảo không đủ" in fail_res.json()["detail"]
+
+def test_submit_product_review(client):
+    # Register user
+    client.post("/auth/register", json={"username": "reviewer1", "password": "password123"})
+    token = client.post("/auth/login", json={"username": "reviewer1", "password": "password123"}).json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    products = client.get("/products").json()
+    product_id = products[0]["id"]
+
+    # Submit review before ordering
+    rev_res = client.post(
+        f"/products/{product_id}/reviews",
+        json={"rating": 5, "comment": "Sản phẩm tuyệt vời!"},
+        headers=headers
+    )
+    assert rev_res.status_code == 200
+    assert rev_res.json()["rating"] == 5
+    assert rev_res.json()["username"] == "reviewer1"
+
+    # Now checkout and update status to completed ("Hoàn thành") to test reward
+    client.post("/checkout", json={"product_id": product_id}, headers=headers)
+    orders = client.get("/orders", headers=headers).json()
+    order_id = orders[0]["id"]
+    client.put(f"/orders/{order_id}/status", json={"status": "Hoàn thành"}, headers=headers)
+
+    # Submit another review when order is completed -> should award +50$ and +30 dopamine
+    rev_reward_res = client.post(
+        f"/products/{product_id}/reviews",
+        json={"rating": 5, "comment": "Đã nhận hàng, tuyệt hảo!"},
+        headers=headers
+    )
+    assert rev_reward_res.status_code == 200
+    # Verify balance and dopamine increase
+    user_me = client.get("/auth/me", headers=headers).json()
+    # Initial balance (5000) - price + 50 reward
+    assert user_me["dopamine_level"] >= 30
+
+def test_daily_checkin(client):
+    client.post("/auth/register", json={"username": "checkin_user", "password": "password123"})
+    token = client.post("/auth/login", json={"username": "checkin_user", "password": "password123"}).json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Day 1 checkin
+    res = client.post("/auth/daily-checkin", headers=headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["streak"] == 1
+    assert data["reward_coins"] == 50.0
+    assert data["reward_dopamine"] == 10
+    assert data["virtual_balance"] == 5050.0
+    assert data["dopamine_level"] == 10
+
+    # Second checkin on same day -> should fail with 400
+    res_duplicate = client.post("/auth/daily-checkin", headers=headers)
+    assert res_duplicate.status_code == 400
+    assert "Bạn đã điểm danh hôm nay rồi" in res_duplicate.json()["detail"]
+
+def test_vouchers_claim_and_list(client):
+    client.post("/auth/register", json={"username": "voucher_user", "password": "password123"})
+    token = client.post("/auth/login", json={"username": "voucher_user", "password": "password123"}).json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # 1. Get active vouchers (will auto-seed)
+    active_res = client.get("/vouchers/active", headers=headers)
+    assert active_res.status_code == 200
+    vouchers = active_res.json()
+    assert len(vouchers) >= 3
+    voucher_id = vouchers[0]["id"]
+    assert vouchers[0]["is_claimed"] == False
+
+    # 2. Claim voucher
+    claim_res = client.post(f"/vouchers/{voucher_id}/claim", headers=headers)
+    assert claim_res.status_code == 200
+    claim_data = claim_res.json()
+    assert claim_data["voucher_id"] == voucher_id
+    assert claim_data["is_used"] == False
+
+    # 3. Check is_claimed in active list
+    active_res_after = client.get("/vouchers/active", headers=headers)
+    assert active_res_after.json()[0]["is_claimed"] == True
+
+    # 4. Check my-vouchers list
+    my_res = client.get("/vouchers/my-vouchers", headers=headers)
+    assert my_res.status_code == 200
+    my_vouchers = my_res.json()
+    assert len(my_vouchers) == 1
+    assert my_vouchers[0]["voucher"]["id"] == voucher_id
+
+    # 5. Duplicate claim should fail
+    dup_claim = client.post(f"/vouchers/{voucher_id}/claim", headers=headers)
+    assert dup_claim.status_code == 400

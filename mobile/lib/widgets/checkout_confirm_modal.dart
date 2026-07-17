@@ -262,6 +262,17 @@ class _CheckoutConfirmModalState extends State<CheckoutConfirmModal> {
                                       color: isSelected ? AppTheme.primaryOrange : (isDark ? Colors.white : Colors.black87),
                                     ),
                                   ),
+                                  if (voucher.isClaimed || provider.myVouchers.any((uv) => uv.voucher.code == voucher.code)) ...[
+                                    const SizedBox(width: 4),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: const Text('Ví', style: TextStyle(fontSize: 9, color: Colors.green, fontWeight: FontWeight.bold)),
+                                    ),
+                                  ],
                                 ],
                               ),
                               const SizedBox(height: 2),

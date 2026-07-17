@@ -1,9 +1,10 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
-from app.models import VirtualProduct, Seller, Category, ProductImage, ProductReview, User
-from app.schemas import ProductResponse
+from app.models import VirtualProduct, Seller, Category, ProductImage, ProductReview, User, VirtualOrder
+from app.schemas import ProductResponse, ProductReviewCreate, ProductReviewResponse
+from app.auth import get_current_user
 from app.routers.categories import seed_categories
 from app.routers.sellers import get_sellers
 
@@ -255,4 +256,59 @@ def get_products(
         query = query.order_by(VirtualProduct.id.asc())
 
     return query.all()
+
+
+@router.post("/{product_id}/reviews", response_model=ProductReviewResponse)
+def submit_product_review(
+    product_id: int,
+    review_data: ProductReviewCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    product = db.query(VirtualProduct).filter(VirtualProduct.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Không tìm thấy sản phẩm")
+
+    # Check if user already reviewed this product
+    existing_review = db.query(ProductReview).filter(
+        ProductReview.product_id == product.id,
+        ProductReview.user_id == current_user.id
+    ).first()
+
+    if existing_review:
+        existing_review.rating = review_data.rating
+        existing_review.comment = review_data.comment
+        db.commit()
+        db.refresh(existing_review)
+        review = existing_review
+    else:
+        review = ProductReview(
+            product_id=product.id,
+            user_id=current_user.id,
+            rating=review_data.rating,
+            comment=review_data.comment
+        )
+        db.add(review)
+        db.commit()
+        db.refresh(review)
+
+        # Check if user has a completed order for this product to award virtual balance and dopamine hits
+        completed_order = db.query(VirtualOrder).filter(
+            VirtualOrder.user_id == current_user.id,
+            VirtualOrder.product_id == product.id,
+            VirtualOrder.status == "Hoàn thành"
+        ).first()
+
+        if completed_order:
+            current_user.virtual_balance += 50.0
+            current_user.dopamine_level += 30
+            db.commit()
+
+    # Recalculate average rating for product
+    all_reviews = db.query(ProductReview).filter(ProductReview.product_id == product.id).all()
+    if all_reviews:
+        product.average_rating = round(sum(r.rating for r in all_reviews) / len(all_reviews), 1)
+        db.commit()
+
+    return review
 

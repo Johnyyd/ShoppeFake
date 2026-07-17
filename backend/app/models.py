@@ -11,11 +11,15 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     virtual_balance = Column(Float, default=5000.00, nullable=False)
     dopamine_level = Column(Integer, default=0, nullable=False)
+    last_checkin_date = Column(String(50), nullable=True)
+    checkin_streak = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     orders = relationship("VirtualOrder", back_populates="user")
     cart_items = relationship("CartItem", back_populates="user", cascade="all, delete-orphan")
     reviews = relationship("ProductReview", back_populates="user", cascade="all, delete-orphan")
+    claimed_vouchers = relationship("UserVoucher", back_populates="user", cascade="all, delete-orphan")
+    favorites = relationship("UserFavorite", back_populates="user", cascade="all, delete-orphan")
 
 
 class Category(Base):
@@ -58,6 +62,21 @@ class Voucher(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
+    user_claims = relationship("UserVoucher", back_populates="voucher", cascade="all, delete-orphan")
+
+
+class UserVoucher(Base):
+    __tablename__ = "User_Vouchers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("Users.id"), nullable=False)
+    voucher_id = Column(Integer, ForeignKey("Vouchers.id"), nullable=False)
+    is_used = Column(Boolean, default=False, nullable=False)
+    claimed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User", back_populates="claimed_vouchers")
+    voucher = relationship("Voucher", back_populates="user_claims")
+
 
 class VirtualProduct(Base):
     __tablename__ = "Virtual_Products"
@@ -84,6 +103,7 @@ class VirtualProduct(Base):
     reviews = relationship("ProductReview", back_populates="product", cascade="all, delete-orphan")
     orders = relationship("VirtualOrder", back_populates="product")
     cart_items = relationship("CartItem", back_populates="product", cascade="all, delete-orphan")
+    favorited_by = relationship("UserFavorite", back_populates="product", cascade="all, delete-orphan")
 
 
 class ProductImage(Base):
@@ -109,6 +129,10 @@ class ProductReview(Base):
 
     product = relationship("VirtualProduct", back_populates="reviews")
     user = relationship("User", back_populates="reviews")
+
+    @property
+    def username(self):
+        return self.user.username if self.user else "Anonymous"
 
 
 class CartItem(Base):
@@ -140,3 +164,16 @@ class VirtualOrder(Base):
 
     user = relationship("User", back_populates="orders")
     product = relationship("VirtualProduct", back_populates="orders")
+
+
+class UserFavorite(Base):
+    __tablename__ = "User_Favorites"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("Users.id"), nullable=False, index=True)
+    product_id = Column(Integer, ForeignKey("Virtual_Products.id"), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User", back_populates="favorites")
+    product = relationship("VirtualProduct", back_populates="favorited_by")
+

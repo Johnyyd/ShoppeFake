@@ -27,6 +27,8 @@ async def lifespan(app: FastAPI):
                 "ALTER TABLE Virtual_Orders ADD discount_amount FLOAT DEFAULT 0.0",
                 "ALTER TABLE Virtual_Orders ADD quantity INTEGER DEFAULT 1",
                 "ALTER TABLE Virtual_Orders ADD status NVARCHAR(50) DEFAULT 'Chờ xác nhận'",
+                "ALTER TABLE Users ADD last_checkin_date NVARCHAR(50) NULL",
+                "ALTER TABLE Users ADD checkin_streak INTEGER DEFAULT 0",
                 "ALTER TABLE Users ALTER COLUMN username NVARCHAR(100) NOT NULL",
                 "ALTER TABLE Categories ALTER COLUMN name NVARCHAR(100) NOT NULL",
                 "ALTER TABLE Categories ALTER COLUMN icon_name NVARCHAR(50) NOT NULL",

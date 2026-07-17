@@ -7,6 +7,7 @@ import '../models/seller.dart';
 import '../models/voucher.dart';
 import '../models/category.dart';
 import '../models/cart_item.dart';
+import '../models/product_review.dart';
 
 class ShoppeProvider with ChangeNotifier {
   final ApiClient _apiClient = ApiClient();
@@ -15,6 +16,7 @@ class ShoppeProvider with ChangeNotifier {
   List<VirtualProduct> _products = [];
   List<Seller> _sellers = [];
   List<Voucher> _activeVouchers = [];
+  List<UserVoucher> _myVouchers = [];
   List<Category> _categories = [];
   List<CartItem> _cartItems = [];
   List<VirtualOrderModel> _orders = [];
@@ -29,6 +31,7 @@ class ShoppeProvider with ChangeNotifier {
   List<VirtualProduct> get products => _products;
   List<Seller> get sellers => _sellers;
   List<Voucher> get activeVouchers => _activeVouchers;
+  List<UserVoucher> get myVouchers => _myVouchers;
   List<Category> get categories => _categories;
   List<CartItem> get cartItems => _cartItems;
   List<VirtualOrderModel> get orders => _orders;
@@ -91,6 +94,7 @@ class ShoppeProvider with ChangeNotifier {
       fetchProducts(),
       fetchSellers(),
       fetchActiveVouchers(),
+      if (isAuthenticated) fetchMyVouchers(),
       if (isAuthenticated) fetchCart(),
       if (isAuthenticated) fetchOrders(),
     ]);
@@ -230,6 +234,34 @@ class ShoppeProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> claimVoucher(int voucherId) async {
+    if (!isAuthenticated) return false;
+    try {
+      final claimed = await _apiClient.claimVoucher(voucherId);
+      _myVouchers.add(claimed);
+      final idx = _activeVouchers.indexWhere((v) => v.id == voucherId);
+      if (idx != -1) {
+        _activeVouchers[idx] = _activeVouchers[idx].copyWith(isClaimed: true);
+      }
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> fetchMyVouchers() async {
+    if (!isAuthenticated) return;
+    try {
+      _myVouchers = await _apiClient.getMyVouchers();
+      notifyListeners();
+    } catch (e) {
+      // Non-fatal
+    }
+  }
+
   Future<Map<String, dynamic>> validateVoucher(String code, double orderAmount) async {
     try {
       return await _apiClient.validateVoucher(code, orderAmount);
@@ -286,6 +318,47 @@ class ShoppeProvider with ChangeNotifier {
     }
   }
 
+  Future<void> refreshUser() async {
+    if (!isAuthenticated) return;
+    try {
+      final user = await _apiClient.getMe();
+      _currentUser = user;
+      notifyListeners();
+    } catch (e) {
+      // Non-fatal if refresh fails
+    }
+  }
+
+  Future<DailyCheckinResult?> dailyCheckin() async {
+    if (!isAuthenticated) return null;
+    _errorMessage = null;
+    try {
+      final result = await _apiClient.dailyCheckin();
+      await refreshUser();
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<ProductReview?> submitProductReview(int productId, int rating, String? comment) async {
+    _setLoading(true);
+    try {
+      final review = await _apiClient.submitProductReview(productId, rating, comment);
+      await refreshUser();
+      await fetchProducts(); // refresh product list average ratings
+      _setLoading(false);
+      return review;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+      return null;
+    }
+  }
+
   void clearError() {
     _errorMessage = null;
     notifyListeners();
@@ -297,6 +370,7 @@ class ShoppeProvider with ChangeNotifier {
     _products = [];
     _sellers = [];
     _activeVouchers = [];
+    _myVouchers = [];
     _categories = [];
     _cartItems = [];
     _orders = [];

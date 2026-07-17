@@ -7,6 +7,7 @@ import '../models/seller.dart';
 import '../models/voucher.dart';
 import '../models/category.dart';
 import '../models/cart_item.dart';
+import '../models/product_review.dart';
 
 class ApiClient {
   // By default points to localhost/emulator or dynamic Tailscale URL from STATE.md
@@ -64,6 +65,43 @@ class ApiClient {
     );
     if (response.statusCode == 201) {
       return User.fromJson(_decodeJson(response));
+    } else {
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<User> getMe() async {
+    final url = Uri.parse('$baseUrl/auth/me');
+    final response = await http.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+      return User.fromJson(_decodeJson(response));
+    } else {
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<DailyCheckinResult> dailyCheckin() async {
+    final url = Uri.parse('$baseUrl/auth/daily-checkin');
+    final response = await http.post(url, headers: _headers);
+    if (response.statusCode == 200) {
+      return DailyCheckinResult.fromJson(_decodeJson(response));
+    } else {
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<ProductReview> submitProductReview(int productId, int rating, String? comment) async {
+    final url = Uri.parse('$baseUrl/products/$productId/reviews');
+    final response = await http.post(
+      url,
+      headers: _headers,
+      body: json.encode({
+        'rating': rating,
+        'comment': comment,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return ProductReview.fromJson(_decodeJson(response));
     } else {
       throw Exception(_parseError(response));
     }
@@ -175,6 +213,27 @@ class ApiClient {
     );
     if (response.statusCode == 200) {
       return _decodeJson(response);
+    } else {
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<UserVoucher> claimVoucher(int voucherId) async {
+    final url = Uri.parse('$baseUrl/vouchers/$voucherId/claim');
+    final response = await http.post(url, headers: _headers);
+    if (response.statusCode == 200) {
+      return UserVoucher.fromJson(_decodeJson(response));
+    } else {
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<List<UserVoucher>> getMyVouchers() async {
+    final url = Uri.parse('$baseUrl/vouchers/my-vouchers');
+    final response = await http.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+      final List<dynamic> data = _decodeJson(response);
+      return data.map((json) => UserVoucher.fromJson(json)).toList();
     } else {
       throw Exception(_parseError(response));
     }

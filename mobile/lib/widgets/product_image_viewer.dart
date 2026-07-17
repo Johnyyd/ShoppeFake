@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../theme/app_theme.dart';
 import '../providers/shoppe_provider.dart';
+import 'product_review_modal.dart';
 
 class ProductImageViewer extends StatefulWidget {
   final VirtualProduct product;
@@ -405,12 +406,49 @@ class _ProductImageViewerState extends State<ProductImageViewer> {
                             color: isDark ? Colors.white70 : Colors.black87,
                           ),
                         ),
-                        Text(
-                          "★ ${widget.product.averageRating.toStringAsFixed(1)} / 5.0",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            color: Colors.amber,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              "★ ${widget.product.averageRating.toStringAsFixed(1)} / 5.0",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                color: Colors.amber,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            InkWell(
+                              onTap: () {
+                                ProductReviewModal.show(
+                                  context,
+                                  product: widget.product,
+                                  isCompletedOrder: false,
+                                  onReviewSubmitted: () {
+                                    Provider.of<ShoppeProvider>(context, listen: false).fetchProducts();
+                                  },
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryOrange.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: AppTheme.primaryOrange.withValues(alpha: 0.4)),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.edit_note, size: 16, color: AppTheme.primaryOrange),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      "Viết đánh giá",
+                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryOrange),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

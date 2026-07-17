@@ -14,18 +14,30 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     username: str
-    virtual_balance: float
-    dopamine_level: int
+    virtual_balance: Optional[float] = 5000.0
+    dopamine_level: Optional[int] = 0
+    last_checkin_date: Optional[str] = None
+    checkin_streak: Optional[int] = 0
 
 class UserResponse(BaseModel):
     id: int
     username: str
-    virtual_balance: float
-    dopamine_level: int
+    virtual_balance: Optional[float] = 5000.0
+    dopamine_level: Optional[int] = 0
+    last_checkin_date: Optional[str] = None
+    checkin_streak: Optional[int] = 0
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+class DailyCheckinResponse(BaseModel):
+    message: str
+    reward_coins: float
+    reward_dopamine: int
+    streak: int
+    virtual_balance: float
+    dopamine_level: int
 
 class CategoryResponse(BaseModel):
     id: int
@@ -55,6 +67,17 @@ class VoucherResponse(BaseModel):
     min_order_value: float
     max_discount: Optional[float] = None
     is_active: bool
+    is_claimed: bool = False
+
+    class Config:
+        from_attributes = True
+
+class UserVoucherResponse(BaseModel):
+    id: int
+    voucher_id: int
+    is_used: bool
+    claimed_at: datetime
+    voucher: VoucherResponse
 
     class Config:
         from_attributes = True
@@ -75,6 +98,10 @@ class ProductImageResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ProductReviewCreate(BaseModel):
+    rating: int = Field(..., ge=1, le=5)
+    comment: Optional[str] = None
 
 class ProductReviewResponse(BaseModel):
     id: int
@@ -104,6 +131,7 @@ class ProductResponse(BaseModel):
     seller: Optional[SellerResponse] = None
     images: List[ProductImageResponse] = []
     reviews: List[ProductReviewResponse] = []
+    is_favorite: bool = False
 
     @field_validator("category_name", mode="before")
     @classmethod
@@ -183,5 +211,12 @@ class OrderResponse(BaseModel):
 
 class OrderStatusUpdate(BaseModel):
     status: str
+
+
+class FavoriteToggleResponse(BaseModel):
+    product_id: int
+    is_favorite: bool
+    message: str
+
 
 

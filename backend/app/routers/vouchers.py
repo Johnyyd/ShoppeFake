@@ -1,14 +1,18 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import Voucher
-from app.schemas import VoucherResponse, VoucherValidateRequest, VoucherValidateResponse
+from app.models import Voucher, UserVoucher, User
+from app.auth import get_current_user, get_current_user_optional
+from app.schemas import VoucherResponse, VoucherValidateRequest, VoucherValidateResponse, UserVoucherResponse
 
 router = APIRouter(prefix="/vouchers", tags=["vouchers"])
 
 @router.get("/active", response_model=List[VoucherResponse])
-def get_active_vouchers(db: Session = Depends(get_db)):
+def get_active_vouchers(
+    db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_current_user_optional)
+):
     vouchers = db.query(Voucher).filter(Voucher.is_active == True).all()
     if not vouchers:
         # Auto-seed baseline vouchers if table is empty
@@ -20,7 +24,64 @@ def get_active_vouchers(db: Session = Depends(get_db)):
         db.add_all(baseline_vouchers)
         db.commit()
         vouchers = db.query(Voucher).filter(Voucher.is_active == True).all()
-    return vouchers
+
+    claimed_ids = set()
+    if user:
+        claims = db.query(UserVoucher.voucher_id).filter(
+            UserVoucher.user_id == user.id,
+            UserVoucher.is_used == False
+        ).all()
+        claimed_ids = {c[0] for c in claims}
+
+    results = []
+    for v in vouchers:
+        v_resp = VoucherResponse.model_validate(v)
+        v_resp.is_claimed = v.id in claimed_ids
+        results.append(v_resp)
+
+    return results
+
+@router.post("/{voucher_id}/claim", response_model=UserVoucherResponse)
+def claim_voucher(
+    voucher_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    voucher = db.query(Voucher).filter(Voucher.id == voucher_id, Voucher.is_active == True).first()
+    if not voucher:
+        raise HTTPException(status_code=404, detail="Mã giảm giá không tồn tại hoặc đã hết hạn.")
+
+    if voucher.used_count >= voucher.usage_limit:
+        raise HTTPException(status_code=400, detail="Mã giảm giá đã được phát hết lượt.")
+
+    existing_claim = db.query(UserVoucher).filter(
+        UserVoucher.user_id == user.id,
+        UserVoucher.voucher_id == voucher_id,
+        UserVoucher.is_used == False
+    ).first()
+    if existing_claim:
+        raise HTTPException(status_code=400, detail="Bạn đã lưu voucher này rồi trong ví.")
+
+    new_claim = UserVoucher(
+        user_id=user.id,
+        voucher_id=voucher_id,
+        is_used=False
+    )
+    db.add(new_claim)
+    db.commit()
+    db.refresh(new_claim)
+    return new_claim
+
+@router.get("/my-vouchers", response_model=List[UserVoucherResponse])
+def get_my_vouchers(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    claims = db.query(UserVoucher).filter(
+        UserVoucher.user_id == user.id,
+        UserVoucher.is_used == False
+    ).all()
+    return claims
 
 @router.post("/validate", response_model=VoucherValidateResponse)
 def validate_voucher(req: VoucherValidateRequest, db: Session = Depends(get_db)):

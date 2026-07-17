@@ -139,6 +139,62 @@ class _CartScreenState extends State<CartScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          // Quick select voucher chips if available
+                          if (provider.myVouchers.isNotEmpty || provider.activeVouchers.isNotEmpty) ...[
+                            SizedBox(
+                              height: 34,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: (provider.myVouchers.isNotEmpty
+                                        ? provider.myVouchers.map((uv) => uv.voucher)
+                                        : provider.activeVouchers)
+                                    .length,
+                                itemBuilder: (context, idx) {
+                                  final v = (provider.myVouchers.isNotEmpty
+                                      ? provider.myVouchers.map((uv) => uv.voucher).toList()
+                                      : provider.activeVouchers)[idx];
+                                  final isSelected = _voucherController.text == v.code;
+                                  return GestureDetector(
+                                    onTap: () {
+                                      HapticFeedback.selectionClick();
+                                      setState(() {
+                                        if (_voucherController.text == v.code) {
+                                          _voucherController.clear();
+                                        } else {
+                                          _voucherController.text = v.code;
+                                        }
+                                      });
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.only(right: 8),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: isSelected ? AppTheme.primaryOrange : AppTheme.primaryOrange.withValues(alpha: 0.12),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: AppTheme.primaryOrange.withValues(alpha: 0.3)),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.local_offer, size: 13, color: isSelected ? Colors.white : AppTheme.primaryOrange),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '${v.code} (${v.discountType == "PERCENT" ? "-${v.discountValue.toStringAsFixed(0)}%" : "-${v.discountValue.toStringAsFixed(0)}xu"})',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              color: isSelected ? Colors.white : AppTheme.primaryOrange,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                          ],
                           // Voucher row
                           Row(
                             children: [
