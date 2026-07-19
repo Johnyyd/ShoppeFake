@@ -123,6 +123,27 @@ class ApiClient {
     }
   }
 
+  Future<List<VirtualProduct>> getFavorites() async {
+    final url = Uri.parse('$baseUrl/favorites');
+    final response = await http.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+      final List<dynamic> data = _decodeJson(response);
+      return data.map((json) => VirtualProduct.fromJson(json)).toList();
+    } else {
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<Map<String, dynamic>> toggleFavorite(int productId) async {
+    final url = Uri.parse('$baseUrl/favorites/$productId/toggle');
+    final response = await http.post(url, headers: _headers);
+    if (response.statusCode == 200) {
+      return _decodeJson(response);
+    } else {
+      throw Exception(_parseError(response));
+    }
+  }
+
   Future<List<Category>> getCategories() async {
     final url = Uri.parse('$baseUrl/categories');
     final response = await http.get(url, headers: _headers);

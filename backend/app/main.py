@@ -5,7 +5,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from app.database import engine, Base
-from app.routers import auth, products, checkout, sellers, vouchers, categories, cart, orders
+from app.routers import auth, products, checkout, sellers, vouchers, categories, cart, orders, favorites
 from app.limiter import limiter
 
 @asynccontextmanager
@@ -119,6 +119,7 @@ app.include_router(vouchers.router)
 app.include_router(categories.router)
 app.include_router(cart.router)
 app.include_router(orders.router)
+app.include_router(favorites.router)
 
 @app.get("/health")
 def health_check():

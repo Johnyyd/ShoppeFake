@@ -2,9 +2,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
-from app.models import VirtualProduct, Seller, Category, ProductImage, ProductReview, User, VirtualOrder
-from app.schemas import ProductResponse, ProductReviewCreate, ProductReviewResponse
-from app.auth import get_current_user
+from app.models import VirtualProduct, Seller, Category, ProductImage, ProductReview, User, VirtualOrder, UserFavorite
+from app.schemas import ProductResponse, ProductReviewCreate, ProductReviewResponse, FavoriteToggleResponse
+from app.auth import get_current_user, get_current_user_optional
 from app.routers.categories import seed_categories
 from app.routers.sellers import get_sellers
 
@@ -225,7 +225,8 @@ def get_products(
     category_id: Optional[int] = Query(None, description="Lọc theo ID danh mục"),
     search_query: Optional[str] = Query(None, description="Tìm kiếm theo từ khóa"),
     sort_by: Optional[str] = Query(None, description="Sắp xếp: price_asc, price_desc, sold_desc, dopamine_desc"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     seed_products_and_related(db)
 
@@ -255,7 +256,57 @@ def get_products(
     else:
         query = query.order_by(VirtualProduct.id.asc())
 
-    return query.all()
+    products = query.all()
+
+    if current_user:
+        favs = db.query(UserFavorite.product_id).filter(UserFavorite.user_id == current_user.id).all()
+        fav_ids = set(f[0] for f in favs)
+        for p in products:
+            p.is_favorite = (p.id in fav_ids)
+    else:
+        for p in products:
+            p.is_favorite = False
+
+    return products
+
+
+@router.get("/{product_id}", response_model=ProductResponse)
+def get_product(
+    product_id: int,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    product = db.query(VirtualProduct).options(
+        joinedload(VirtualProduct.seller),
+        joinedload(VirtualProduct.images),
+        joinedload(VirtualProduct.reviews).joinedload(ProductReview.user)
+    ).filter(VirtualProduct.id == product_id).first()
+
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy sản phẩm")
+
+    if current_user:
+        fav = db.query(UserFavorite).filter(
+            UserFavorite.user_id == current_user.id,
+            UserFavorite.product_id == product.id
+        ).first()
+        product.is_favorite = (fav is not None)
+    else:
+        product.is_favorite = False
+
+    return product
+
+
+@router.post("/{product_id}/favorite", response_model=FavoriteToggleResponse)
+@router.post("/{product_id}/toggle-favorite", response_model=FavoriteToggleResponse)
+def toggle_product_favorite(
+    product_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    from app.routers.favorites import toggle_favorite
+    return toggle_favorite(product_id=product_id, current_user=current_user, db=db)
+
 
 
 @router.post("/{product_id}/reviews", response_model=ProductReviewResponse)

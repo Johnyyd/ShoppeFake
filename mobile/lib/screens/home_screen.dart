@@ -10,6 +10,7 @@ import '../widgets/checkout_confirm_modal.dart';
 import '../widgets/checkout_modal.dart';
 import '../widgets/daily_checkin_card.dart';
 import '../models/voucher.dart';
+import 'favorites_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final Function(int) onNavigateToTab;
@@ -182,60 +183,122 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 14),
-                      // Search Bar Trigger -> Goes to Search screen (Tab 1)
-                      GestureDetector(
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          onNavigateToTab(1);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E1E24) : Colors.white,
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: AppTheme.primaryOrange.withValues(alpha: 0.25),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.03),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.search, color: AppTheme.primaryOrange, size: 20),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'Tìm kiếm siêu phẩm ảo, voucher giảm giá...',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: isDark ? Colors.white54 : Colors.black45,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      // Search Bar Trigger & Wishlist shortcut
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                onNavigateToTab(1);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.primaryOrange.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Text(
-                                  'TÌM NGAY',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppTheme.primaryOrange,
+                                  color: isDark ? const Color(0xFF1E1E24) : Colors.white,
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(
+                                    color: AppTheme.primaryOrange.withValues(alpha: 0.25),
                                   ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.03),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.search, color: AppTheme.primaryOrange, size: 20),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        'Tìm kiếm siêu phẩm ảo, voucher giảm giá...',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: isDark ? Colors.white54 : Colors.black45,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primaryOrange.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Text(
+                                        'TÌM NGAY',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppTheme.primaryOrange,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => FavoritesScreen(onNavigateToTab: onNavigateToTab),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF1E1E24) : Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: const Color(0xFFFF007F).withValues(alpha: 0.35),
+                                  width: 1.5,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFFFF007F).withValues(alpha: 0.12),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  const Icon(Icons.favorite, color: Color(0xFFFF007F), size: 22),
+                                  if (provider.favoriteProducts.isNotEmpty)
+                                    Positioned(
+                                      top: -5,
+                                      right: -7,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(3.5),
+                                        decoration: const BoxDecoration(
+                                          color: AppTheme.primaryOrange,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          '${provider.favoriteProducts.length}',
+                                          style: const TextStyle(
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -556,16 +619,22 @@ class HomeScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.local_activity_rounded, color: AppTheme.primaryOrange, size: 20),
-                  const SizedBox(width: 8),
-                  const Text(
-                    '🎁 Mã Giảm Giá Khủng',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(Icons.local_activity_rounded, color: AppTheme.primaryOrange, size: 20),
+                    const SizedBox(width: 8),
+                    const Flexible(
+                      child: Text(
+                        '🎁 Mã Giảm Giá Khủng',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: () {
                   HapticFeedback.selectionClick();
@@ -839,26 +908,29 @@ class HomeScreen extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  v.discountType == 'PERCENT'
-                                      ? 'Giảm ${v.discountValue.toStringAsFixed(0)}% tối đa ${v.maxDiscount?.toStringAsFixed(0) ?? '∞'} xu'
-                                      : 'Giảm trực tiếp ${v.discountValue.toStringAsFixed(0)} xu',
-                                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppTheme.primaryOrange),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Đơn tối thiểu ${v.minOrderValue.toStringAsFixed(0)} xu',
-                                  style: TextStyle(fontSize: 12, color: isDark ? Colors.white70 : Colors.black87),
-                                ),
-                                Text(
-                                  'Mã: ${v.code}',
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.green),
-                                ),
-                              ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    v.discountType == 'PERCENT'
+                                        ? 'Giảm ${v.discountValue.toStringAsFixed(0)}% tối đa ${v.maxDiscount?.toStringAsFixed(0) ?? '∞'} xu'
+                                        : 'Giảm trực tiếp ${v.discountValue.toStringAsFixed(0)} xu',
+                                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppTheme.primaryOrange),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Đơn tối thiểu ${v.minOrderValue.toStringAsFixed(0)} xu',
+                                    style: TextStyle(fontSize: 12, color: isDark ? Colors.white70 : Colors.black87),
+                                  ),
+                                  Text(
+                                    'Mã: ${v.code}',
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.green),
+                                  ),
+                                ],
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(ctx);

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../models/product.dart';
 import '../theme/app_theme.dart';
 import 'product_image_viewer.dart';
+import 'heart_button.dart';
 
 class ProductCard extends StatefulWidget {
   final VirtualProduct product;
@@ -182,32 +183,42 @@ class _ProductCardState extends State<ProductCard>
                           ),
                         ),
 
-                        // Top-right Dopamine badge
+                        // Top-right Dopamine badge and Wishlist Heart
                         Positioned(
                           top: 8,
                           right: 8,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.65),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.bolt, color: Colors.amber, size: 12),
-                                const SizedBox(width: 2),
-                                Text(
-                                  '+${(widget.product.dopamineRating).toString()}',
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.amber,
-                                    fontFeatures: [FontFeature.tabularFigures()],
-                                  ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.65),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                              ],
-                            ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.bolt, color: Colors.amber, size: 12),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      '+${(widget.product.dopamineRating).toString()}',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.amber,
+                                        fontFeatures: [FontFeature.tabularFigures()],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              HeartButton(
+                                product: widget.product,
+                                size: 16.0,
+                              ),
+                            ],
                           ),
                         ),
 
@@ -284,11 +295,15 @@ class _ProductCardState extends State<ProductCard>
                       color: isDark ? Colors.white70 : Colors.black87,
                     ),
                   ),
-                  Text(
-                    ' | Đã bán ${(widget.product.soldCount) > 999 ? "${((widget.product.soldCount) / 1000).toStringAsFixed(1)}k" : (widget.product.soldCount).toString()}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isDark ? Colors.white54 : Colors.black54,
+                  Expanded(
+                    child: Text(
+                      ' | Đã bán ${(widget.product.soldCount) > 999 ? "${((widget.product.soldCount) / 1000).toStringAsFixed(1)}k" : (widget.product.soldCount).toString()}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark ? Colors.white54 : Colors.black54,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],

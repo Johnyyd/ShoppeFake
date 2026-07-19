@@ -6,6 +6,7 @@ import '../models/product.dart';
 import '../theme/app_theme.dart';
 import '../providers/shoppe_provider.dart';
 import 'product_review_modal.dart';
+import 'heart_button.dart';
 
 class ProductImageViewer extends StatefulWidget {
   final VirtualProduct product;
@@ -154,20 +155,30 @@ class _ProductImageViewerState extends State<ProductImageViewer> {
                       ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.05),
-                        shape: BoxShape.circle,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      HeartButton(
+                        product: widget.product,
+                        size: 20.0,
                       ),
-                      child: Icon(
-                        Icons.close,
-                        size: 20,
-                        color: isDark ? Colors.white70 : Colors.black87,
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.05),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            size: 20,
+                            color: isDark ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
@@ -209,6 +220,14 @@ class _ProductImageViewerState extends State<ProductImageViewer> {
                                       errorBuilder: (context, error, stackTrace) => _buildPlaceholder(isDark),
                                     )
                                   : _buildPlaceholder(isDark),
+                            ),
+                            Positioned(
+                              top: 14,
+                              left: 14,
+                              child: HeartButton(
+                                product: widget.product,
+                                size: 24.0,
+                              ),
                             ),
                             if (widget.product.discountPercentage > 0)
                               Positioned(

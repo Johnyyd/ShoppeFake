@@ -20,6 +20,7 @@ class VirtualProduct {
   final Seller? seller;
   final List<ProductImage> images;
   final List<ProductReview> reviews;
+  final bool isFavorite;
 
   VirtualProduct({
     required this.id,
@@ -39,6 +40,7 @@ class VirtualProduct {
     this.seller,
     this.images = const [],
     this.reviews = const [],
+    this.isFavorite = false,
   });
 
   static int _parseInt(dynamic value, [int defaultValue = 0]) {
@@ -82,6 +84,49 @@ class VirtualProduct {
       seller: json['seller'] != null ? Seller.fromJson(json['seller']) : null,
       images: parsedImages,
       reviews: parsedReviews,
+      isFavorite: json['is_favorite'] == true || json['isFavorite'] == true,
+    );
+  }
+
+  VirtualProduct copyWith({
+    int? id,
+    String? name,
+    String? description,
+    double? priceVirtual,
+    double? originalPrice,
+    int? discountPercentage,
+    String? imageUrl,
+    int? dopamineRating,
+    String? category,
+    int? categoryId,
+    int? sellerId,
+    int? stockQuantity,
+    int? soldCount,
+    double? averageRating,
+    Seller? seller,
+    List<ProductImage>? images,
+    List<ProductReview>? reviews,
+    bool? isFavorite,
+  }) {
+    return VirtualProduct(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      priceVirtual: priceVirtual ?? this.priceVirtual,
+      originalPrice: originalPrice ?? this.originalPrice,
+      discountPercentage: discountPercentage ?? this.discountPercentage,
+      imageUrl: imageUrl ?? this.imageUrl,
+      dopamineRating: dopamineRating ?? this.dopamineRating,
+      category: category ?? this.category,
+      categoryId: categoryId ?? this.categoryId,
+      sellerId: sellerId ?? this.sellerId,
+      stockQuantity: stockQuantity ?? this.stockQuantity,
+      soldCount: soldCount ?? this.soldCount,
+      averageRating: averageRating ?? this.averageRating,
+      seller: seller ?? this.seller,
+      images: images ?? this.images,
+      reviews: reviews ?? this.reviews,
+      isFavorite: isFavorite ?? this.isFavorite,
     );
   }
 }

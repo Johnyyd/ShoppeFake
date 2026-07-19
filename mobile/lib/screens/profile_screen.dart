@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../providers/shoppe_provider.dart';
 import '../theme/app_theme.dart';
 
+import 'favorites_screen.dart';
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -138,7 +140,18 @@ class ProfileScreen extends StatelessWidget {
                   _buildQuickAction(Icons.confirmation_number, 'Trạm Voucher', Colors.orange, isDark),
                   _buildQuickAction(Icons.storefront, 'Gian hàng Mall', Colors.blue, isDark),
                   _buildQuickAction(Icons.local_fire_department, 'Săn Dopamine', Colors.red, isDark),
-                  _buildQuickAction(Icons.favorite, 'Đã thích', Colors.pink, isDark),
+                  _buildQuickAction(
+                    Icons.favorite,
+                    'Đã thích',
+                    Colors.pink,
+                    isDark,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+                      );
+                    },
+                  ),
                 ],
               ),
 
@@ -214,24 +227,31 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickAction(IconData icon, String label, Color color, bool isDark) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E24) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 28),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: isDark ? Colors.white70 : Colors.black87),
-          ),
-        ],
+  Widget _buildQuickAction(IconData icon, String label, Color color, bool isDark, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap?.call();
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E24) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: isDark ? Colors.white70 : Colors.black87),
+            ),
+          ],
+        ),
       ),
     );
   }

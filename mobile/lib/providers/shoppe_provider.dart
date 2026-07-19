@@ -20,6 +20,7 @@ class ShoppeProvider with ChangeNotifier {
   List<Category> _categories = [];
   List<CartItem> _cartItems = [];
   List<VirtualOrderModel> _orders = [];
+  List<VirtualProduct> _favoriteProducts = [];
   Category? _selectedCategory;
   String _searchQuery = '';
   String _sortBy = '';
@@ -35,6 +36,7 @@ class ShoppeProvider with ChangeNotifier {
   List<Category> get categories => _categories;
   List<CartItem> get cartItems => _cartItems;
   List<VirtualOrderModel> get orders => _orders;
+  List<VirtualProduct> get favoriteProducts => _favoriteProducts;
   Category? get selectedCategory => _selectedCategory;
   String get searchQuery => _searchQuery;
   String get sortBy => _sortBy;
@@ -97,6 +99,7 @@ class ShoppeProvider with ChangeNotifier {
       if (isAuthenticated) fetchMyVouchers(),
       if (isAuthenticated) fetchCart(),
       if (isAuthenticated) fetchOrders(),
+      if (isAuthenticated) fetchFavorites(),
     ]);
   }
 
@@ -213,6 +216,54 @@ class ShoppeProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       notifyListeners();
+    }
+  }
+
+  Future<void> fetchFavorites() async {
+    if (!isAuthenticated) {
+      _favoriteProducts = [];
+      notifyListeners();
+      return;
+    }
+    try {
+      _favoriteProducts = await _apiClient.getFavorites();
+      notifyListeners();
+    } catch (e) {
+      _handleAuthError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> toggleFavorite(int productId) async {
+    if (!isAuthenticated) {
+      return {'success': false, 'message': 'Vui lòng đăng nhập để thả tim sản phẩm!'};
+    }
+    // Optimistic UI update
+    final index = _products.indexWhere((p) => p.id == productId);
+    if (index != -1) {
+      final oldProduct = _products[index];
+      _products[index] = oldProduct.copyWith(isFavorite: !oldProduct.isFavorite);
+      notifyListeners();
+    }
+
+    try {
+      final res = await _apiClient.toggleFavorite(productId);
+      final isFav = res['is_favorite'] == true;
+      if (index != -1) {
+        _products[index] = _products[index].copyWith(isFavorite: isFav);
+      }
+      await refreshUser();
+      await fetchFavorites();
+      notifyListeners();
+      return {'success': true, 'message': res['message'] ?? 'Đã cập nhật yêu thích', 'is_favorite': isFav};
+    } catch (e) {
+      // Revert optimistic update on failure
+      if (index != -1) {
+        final oldProduct = _products[index];
+        _products[index] = oldProduct.copyWith(isFavorite: !oldProduct.isFavorite);
+        notifyListeners();
+      }
+      _handleAuthError(e);
+      return {'success': false, 'message': e.toString().replaceAll('Exception: ', '')};
     }
   }
 
