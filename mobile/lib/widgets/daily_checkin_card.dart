@@ -297,12 +297,15 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
                         : const Icon(Icons.card_giftcard_rounded, size: 20),
-                    label: Text(
-                      _isCheckingIn ? 'ĐANG ĐIỂM DANH...' : '🎁 ĐIỂM DANH NHẬN +${(_rewards[nextDayIndex]['coins'] as num).toVND()} NGAY',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 13,
-                        letterSpacing: 0.3,
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        _isCheckingIn ? 'ĐANG ĐIỂM DANH...' : '🎁 ĐIỂM DANH NHẬN +${(_rewards[nextDayIndex]['coins'] as num).toVND()} NGAY',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                          letterSpacing: 0.3,
+                        ),
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -310,7 +313,7 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
                       foregroundColor: Colors.white,
                       elevation: 4,
                       shadowColor: AppTheme.primaryOrange.withValues(alpha: 0.4),
-                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -321,7 +324,7 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
             else
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                 decoration: BoxDecoration(
                   color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
@@ -331,12 +334,16 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
                   children: [
                     const Icon(Icons.check_circle, color: Colors.green, size: 18),
                     const SizedBox(width: 8),
-                    Text(
-                      '✅ Đã điểm danh thành công! (Streak: $currentStreak ngày)',
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
+                    Flexible(
+                      child: Text(
+                        '✅ Đã điểm danh hôm nay! (Streak: $currentStreak ngày)',
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -495,15 +502,20 @@ class _DailyCheckinCelebrationModalState
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Column(
-                          children: [
-                            const Text('Thưởng Điểm Danh', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                            const SizedBox(height: 4),
-                            Text(
-                              '+${widget.result.rewardCoins.toVND()}',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppTheme.primaryOrange),
-                            ),
-                          ],
+                        Flexible(
+                          child: Column(
+                            children: [
+                              const Text('Thưởng Điểm Danh', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                              const SizedBox(height: 4),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  '+${widget.result.rewardCoins.toVND()}',
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppTheme.primaryOrange),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

@@ -345,12 +345,16 @@ class _ProductImageViewerState extends State<ProductImageViewer> {
                               children: [
                                 Row(
                                   children: [
-                                    Text(
-                                      widget.product.seller?.shopName ?? "Gian Hàng Uy Tín",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: isDark ? Colors.white : const Color(0xFF111827),
+                                    Flexible(
+                                      child: Text(
+                                        widget.product.seller?.shopName ?? "Gian Hàng Uy Tín",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: isDark ? Colors.white : const Color(0xFF111827),
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                     const SizedBox(width: 6),
@@ -397,14 +401,19 @@ class _ProductImageViewerState extends State<ProductImageViewer> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Đánh giá sản phẩm (${widget.product.reviews.length})",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white70 : Colors.black87,
+                        Expanded(
+                          child: Text(
+                            "Đánh giá sản phẩm (${widget.product.reviews.length})",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white70 : Colors.black87,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Row(
                           children: [
                             Text(
@@ -451,21 +460,26 @@ class _ProductImageViewerState extends State<ProductImageViewer> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
 
                     if (widget.product.reviews.isEmpty)
-                      Text(
-                        "Chưa có đánh giá nào. Hãy mua và trở thành người đầu tiên trải nghiệm!",
-                        style: TextStyle(fontSize: 12, color: isDark ? Colors.white38 : Colors.black38),
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        alignment: Alignment.center,
+                        child: Text(
+                          "Chưa có đánh giá nào cho sản phẩm này.\nHãy là người đầu tiên trải nghiệm và chia sẻ!",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 12, color: isDark ? Colors.white38 : Colors.black38),
+                        ),
                       )
                     else
                       ...widget.product.reviews.map((r) {
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 10),
+                          margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E1E24) : const Color(0xFFF3F4F6),
-                            borderRadius: BorderRadius.circular(14),
+                            color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.02),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -473,10 +487,15 @@ class _ProductImageViewerState extends State<ProductImageViewer> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    r.username ?? 'Người mua ẩn danh',
-                                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: isDark ? Colors.white : Colors.black87),
+                                  Expanded(
+                                    child: Text(
+                                      r.username ?? 'Người mua ẩn danh',
+                                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: isDark ? Colors.white : Colors.black87),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
+                                  const SizedBox(width: 8),
                                   Row(
                                     children: List.generate(
                                       r.rating,
