@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -50,6 +50,7 @@ def login_user(request: Request, user_in: UserLogin, db: Session = Depends(get_d
     return {
         "access_token": access_token,
         "token_type": "bearer",
+        "id": user.id,
         "username": user.username,
         "virtual_balance": user.virtual_balance if user.virtual_balance is not None else 5000.0,
         "dopamine_level": user.dopamine_level if user.dopamine_level is not None else 0,
@@ -59,14 +60,16 @@ def login_user(request: Request, user_in: UserLogin, db: Session = Depends(get_d
 
 @router.post("/daily-checkin", response_model=DailyCheckinResponse)
 def daily_checkin(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    today = datetime.utcnow().strftime("%Y-%m-%d")
+    vn_tz = timezone(timedelta(hours=7))
+    now_vn = datetime.now(vn_tz)
+    today = now_vn.strftime("%Y-%m-%d")
     if current_user.last_checkin_date == today:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Bạn đã điểm danh hôm nay rồi! Hãy quay lại vào ngày mai."
         )
 
-    yesterday = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
+    yesterday = (now_vn - timedelta(days=1)).strftime("%Y-%m-%d")
     if current_user.last_checkin_date == yesterday:
         current_user.checkin_streak += 1
     else:

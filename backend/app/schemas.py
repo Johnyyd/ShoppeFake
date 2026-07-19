@@ -13,6 +13,7 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    id: Optional[int] = 0
     username: str
     virtual_balance: Optional[float] = 5000.0
     dopamine_level: Optional[int] = 0

@@ -74,12 +74,8 @@ class ShoppeProvider with ChangeNotifier {
     _setLoading(true);
     try {
       final data = await _apiClient.login(username, password);
-      _currentUser = User(
-        id: 0,
-        username: data['username'] ?? username,
-        virtualBalance: (data['virtual_balance'] ?? 5000.0).toDouble(),
-        dopamineLevel: data['dopamine_level'] ?? 0,
-      );
+      _currentUser = User.fromJson(data);
+      await refreshUser();
       await fetchInitialData();
       _setLoading(false);
       return true;
@@ -96,6 +92,7 @@ class ShoppeProvider with ChangeNotifier {
       fetchProducts(),
       fetchSellers(),
       fetchActiveVouchers(),
+      if (isAuthenticated) refreshUser(),
       if (isAuthenticated) fetchMyVouchers(),
       if (isAuthenticated) fetchCart(),
       if (isAuthenticated) fetchOrders(),
@@ -331,9 +328,12 @@ class ShoppeProvider with ChangeNotifier {
           username: _currentUser!.username,
           virtualBalance: result.newVirtualBalance,
           dopamineLevel: result.newDopamineLevel,
+          lastCheckinDate: _currentUser!.lastCheckinDate,
+          checkinStreak: _currentUser!.checkinStreak,
         );
       }
       await fetchOrders();
+      await refreshUser();
       _setLoading(false);
       return result;
     } catch (e) {
@@ -356,10 +356,13 @@ class ShoppeProvider with ChangeNotifier {
           username: _currentUser!.username,
           virtualBalance: result.newVirtualBalance,
           dopamineLevel: result.newDopamineLevel,
+          lastCheckinDate: _currentUser!.lastCheckinDate,
+          checkinStreak: _currentUser!.checkinStreak,
         );
       }
       await fetchCart();
       await fetchOrders();
+      await refreshUser();
       _setLoading(false);
       return result;
     } catch (e) {
@@ -390,6 +393,7 @@ class ShoppeProvider with ChangeNotifier {
       return result;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
+      await refreshUser();
       notifyListeners();
       return null;
     }

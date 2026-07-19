@@ -121,47 +121,56 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isCheckedInToday
-                            ? Colors.green.withValues(alpha: 0.15)
-                            : AppTheme.primaryOrange.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isCheckedInToday ? Icons.check_circle : Icons.calendar_today_rounded,
-                        color: isCheckedInToday ? Colors.green : AppTheme.primaryOrange,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Điểm Danh Mỗi Ngày',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                          ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isCheckedInToday
+                              ? Colors.green.withValues(alpha: 0.15)
+                              : AppTheme.primaryOrange.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
                         ),
-                        Text(
-                          isCheckedInToday
-                              ? 'Đã điểm danh hôm nay! (Streak: $currentStreak ngày)'
-                              : 'Tích streak nhận tới 300🪙 xu ảo',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDark ? Colors.white60 : Colors.black54,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        child: Icon(
+                          isCheckedInToday ? Icons.check_circle : Icons.calendar_today_rounded,
+                          color: isCheckedInToday ? Colors.green : AppTheme.primaryOrange,
+                          size: 20,
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Điểm Danh Mỗi Ngày',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              isCheckedInToday
+                                  ? 'Đã điểm danh hôm nay! (Streak: $currentStreak ngày)'
+                                  : 'Tích streak nhận tới 300🪙 xu ảo',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark ? Colors.white60 : Colors.black54,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 if (currentStreak > 0)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
