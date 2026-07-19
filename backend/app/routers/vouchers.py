@@ -14,19 +14,22 @@ def get_active_vouchers(
     user: Optional[User] = Depends(get_current_user_optional)
 ):
     vouchers = db.query(Voucher).filter(Voucher.is_active == True).all()
-    if not vouchers:
-        # Auto-seed baseline vouchers if table is empty
-        baseline_vouchers = [
-            Voucher(code="ORANGE500", discount_type="FIXED", discount_value=500.00, min_order_value=1000.00, max_discount=None, usage_limit=500, is_active=True),
-            Voucher(code="WELCOME20", discount_type="PERCENT", discount_value=20.00, min_order_value=0.00, max_discount=1000.00, usage_limit=1000, is_active=True),
-            Voucher(code="CYBER10", discount_type="PERCENT", discount_value=10.00, min_order_value=500.00, max_discount=300.00, usage_limit=2000, is_active=True)
-        ]
-        db.add_all(baseline_vouchers)
+    existing_codes = {v.code for v in db.query(Voucher).all()}
+    baseline_vouchers = [
+        Voucher(code="ORANGE50K", discount_type="FIXED", discount_value=50000.00, min_order_value=150000.00, max_discount=None, usage_limit=500, is_active=True),
+        Voucher(code="WELCOME20", discount_type="PERCENT", discount_value=20.00, min_order_value=0.00, max_discount=200000.00, usage_limit=1000, is_active=True),
+        Voucher(code="SHOPEE100K", discount_type="FIXED", discount_value=100000.00, min_order_value=500000.00, max_discount=None, usage_limit=2000, is_active=True),
+        Voucher(code="TECH300K", discount_type="FIXED", discount_value=300000.00, min_order_value=2000000.00, max_discount=None, usage_limit=1000, is_active=True),
+        Voucher(code="VIP500K", discount_type="FIXED", discount_value=500000.00, min_order_value=5000000.00, max_discount=None, usage_limit=500, is_active=True)
+    ]
+    missing = [v for v in baseline_vouchers if v.code not in existing_codes]
+    if missing:
+        db.add_all(missing)
         db.commit()
         vouchers = db.query(Voucher).filter(Voucher.is_active == True).all()
 
     claimed_ids = set()
-    if user:
+    if user and isinstance(user, User):
         claims = db.query(UserVoucher.voucher_id).filter(
             UserVoucher.user_id == user.id,
             UserVoucher.is_used == False

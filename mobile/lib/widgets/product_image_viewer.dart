@@ -7,6 +7,7 @@ import '../theme/app_theme.dart';
 import '../providers/shoppe_provider.dart';
 import 'product_review_modal.dart';
 import 'heart_button.dart';
+import '../utils/currency_format.dart';
 
 class ProductImageViewer extends StatefulWidget {
   final VirtualProduct product;
@@ -367,27 +368,6 @@ class _ProductImageViewerState extends State<ProductImageViewer> {
                               ],
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryOrange.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.bolt, color: Colors.amber, size: 16),
-                                Text(
-                                  "+${widget.product.dopamineRating}",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.amber,
-                                    fontSize: 13,
-                                    fontFeatures: [FontFeature.tabularFigures()],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -404,7 +384,7 @@ class _ProductImageViewerState extends State<ProductImageViewer> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      widget.product.description ?? "Sản phẩm ảo mang lại cảm giác cực kỳ hưng phấn, thúc đẩy Dopamine tức thì khi sở hữu. Thiết kế đẳng cấp dành riêng cho nhà sưu tầm ảo.",
+                      widget.product.description ?? "Sản phẩm chính hãng mang lại trải nghiệm mua sắm đẳng cấp, chất lượng vượt trội từ Shopee Mall.",
                       style: TextStyle(
                         fontSize: 13,
                         height: 1.4,
@@ -548,7 +528,7 @@ class _ProductImageViewerState extends State<ProductImageViewer> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          "🪙 ${widget.product.priceVirtual.toStringAsFixed(0)}",
+                          widget.product.priceVirtual.toVND(),
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,

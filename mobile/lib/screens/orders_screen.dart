@@ -6,6 +6,7 @@ import '../providers/shoppe_provider.dart';
 import '../models/order.dart';
 import '../widgets/product_image_viewer.dart';
 import '../widgets/product_review_modal.dart';
+import '../utils/currency_format.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -252,7 +253,7 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '🪙 ${order.virtualPricePaid.toStringAsFixed(0)} xu (${order.quantity} cái) • +${order.dopamineHitsAwarded} HITS',
+                            '${order.virtualPricePaid.toVND()} (x${order.quantity})',
                             style: const TextStyle(
                               fontWeight: FontWeight.w800,
                               color: AppTheme.primaryOrange,

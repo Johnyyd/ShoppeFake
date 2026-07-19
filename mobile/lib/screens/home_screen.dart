@@ -8,6 +8,7 @@ import '../theme/app_theme.dart';
 import '../widgets/product_card.dart';
 import '../widgets/checkout_confirm_modal.dart';
 import '../widgets/checkout_modal.dart';
+import '../utils/currency_format.dart';
 import '../widgets/daily_checkin_card.dart';
 import '../models/voucher.dart';
 import 'favorites_screen.dart';
@@ -123,60 +124,22 @@ class HomeScreen extends StatelessWidget {
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerRight,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // Dopamine Level badge
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                                    decoration: BoxDecoration(
-                                      color: Colors.amber.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(Icons.bolt, color: Colors.amber, size: 15),
-                                        const SizedBox(width: 3),
-                                        Text(
-                                          '${user?.dopamineLevel ?? 0} HITS',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w800,
-                                            color: Colors.amber,
-                                            fontFeatures: [FontFeature.tabularFigures()],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryOrange.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: AppTheme.primaryOrange.withValues(alpha: 0.3)),
+                                ),
+                                child: Text(
+                                  (user?.virtualBalance ?? 0).toVND(),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppTheme.primaryOrange,
+                                    fontFeatures: [FontFeature.tabularFigures()],
                                   ),
-                                  const SizedBox(width: 6),
-                                  // Virtual Balance badge
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.primaryOrange.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: AppTheme.primaryOrange.withValues(alpha: 0.3)),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Text('🪙 ', style: TextStyle(fontSize: 12)),
-                                        Text(
-                                          user?.virtualBalance.toStringAsFixed(0) ?? "0",
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w900,
-                                            color: AppTheme.primaryOrange,
-                                            fontFeatures: [FontFeature.tabularFigures()],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
@@ -367,7 +330,7 @@ class HomeScreen extends StatelessWidget {
                                         SizedBox(width: 2),
                                         Flexible(
                                           child: Text(
-                                            'FLASH SALE DOPAMINE',
+                                            'FLASH SALE GIẢM SỐC',
                                             style: TextStyle(
                                               color: Color(0xFFFF2A00),
                                               fontSize: 10,
@@ -717,7 +680,7 @@ class HomeScreen extends StatelessWidget {
                             Text(
                               voucher.discountType == 'PERCENT'
                                   ? 'Giảm ${voucher.discountValue.toStringAsFixed(0)}%'
-                                  : 'Giảm ${voucher.discountValue.toStringAsFixed(0)} xu',
+                                  : 'Giảm ${voucher.discountValue.toVND()}',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w900,
@@ -728,7 +691,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Đơn từ ${voucher.minOrderValue.toStringAsFixed(0)} xu',
+                              'Đơn từ ${voucher.minOrderValue.toVND()}',
                               style: TextStyle(
                                 fontSize: 11,
                                 color: isDark ? Colors.white60 : Colors.black54,
@@ -914,13 +877,13 @@ class HomeScreen extends StatelessWidget {
                                 children: [
                                   Text(
                                     v.discountType == 'PERCENT'
-                                        ? 'Giảm ${v.discountValue.toStringAsFixed(0)}% tối đa ${v.maxDiscount?.toStringAsFixed(0) ?? '∞'} xu'
-                                        : 'Giảm trực tiếp ${v.discountValue.toStringAsFixed(0)} xu',
+                                        ? 'Giảm ${v.discountValue.toStringAsFixed(0)}% tối đa ${(v.maxDiscount ?? 0).toVND()}'
+                                        : 'Giảm trực tiếp ${v.discountValue.toVND()}',
                                     style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppTheme.primaryOrange),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Đơn tối thiểu ${v.minOrderValue.toStringAsFixed(0)} xu',
+                                    'Đơn tối thiểu ${v.minOrderValue.toVND()}',
                                     style: TextStyle(fontSize: 12, color: isDark ? Colors.white70 : Colors.black87),
                                   ),
                                   Text(

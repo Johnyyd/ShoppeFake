@@ -9,7 +9,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(Unicode(100), unique=True, index=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
-    virtual_balance = Column(Float, default=5000.00, nullable=False)
+    virtual_balance = Column(Float, default=50000000.00, nullable=False)
     dopamine_level = Column(Integer, default=0, nullable=False)
     last_checkin_date = Column(String(50), nullable=True)
     checkin_streak = Column(Integer, default=0, nullable=False)
@@ -101,7 +101,7 @@ class VirtualProduct(Base):
     category = relationship("Category", back_populates="products")
     images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan", order_by="ProductImage.display_order")
     reviews = relationship("ProductReview", back_populates="product", cascade="all, delete-orphan")
-    orders = relationship("VirtualOrder", back_populates="product")
+    orders = relationship("VirtualOrder", back_populates="product", cascade="all, delete-orphan")
     cart_items = relationship("CartItem", back_populates="product", cascade="all, delete-orphan")
     favorited_by = relationship("UserFavorite", back_populates="product", cascade="all, delete-orphan")
 

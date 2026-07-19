@@ -6,6 +6,7 @@ import '../models/product.dart';
 import '../models/voucher.dart';
 import '../providers/shoppe_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/currency_format.dart';
 
 class CheckoutConfirmModal extends StatefulWidget {
   final VirtualProduct product;
@@ -231,7 +232,7 @@ class _CheckoutConfirmModalState extends State<CheckoutConfirmModal> {
                           HapticFeedback.vibrate();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text("Cần đơn tối thiểu ${voucher.minOrderValue.toStringAsFixed(0)} xu để dùng ${voucher.code}"),
+                              content: Text("Cần đơn tối thiểu ${voucher.minOrderValue.toVND()} để dùng ${voucher.code}"),
                               duration: const Duration(seconds: 2),
                             ),
                           );
@@ -279,7 +280,7 @@ class _CheckoutConfirmModalState extends State<CheckoutConfirmModal> {
                               Text(
                                 voucher.discountType == "PERCENT"
                                     ? "Giảm ${voucher.discountValue.toStringAsFixed(0)}%"
-                                    : "Giảm ${voucher.discountValue.toStringAsFixed(0)} xu",
+                                    : "Giảm ${voucher.discountValue.toVND()}",
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: isDark ? Colors.white60 : Colors.black54,
@@ -311,7 +312,7 @@ class _CheckoutConfirmModalState extends State<CheckoutConfirmModal> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text("Giá gốc sản phẩm:", style: TextStyle(fontSize: 13, color: isDark ? Colors.white70 : Colors.black87)),
-                      Text("🪙 ${widget.product.priceVirtual.toStringAsFixed(0)} xu", style: const TextStyle(fontWeight: FontWeight.w600)),
+                      Text(widget.product.priceVirtual.toVND(), style: const TextStyle(fontWeight: FontWeight.w600)),
                     ],
                   ),
                   if (_discountAmount > 0) ...[
@@ -320,7 +321,7 @@ class _CheckoutConfirmModalState extends State<CheckoutConfirmModal> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text("Mã giảm giá (${_selectedVoucher?.code}):", style: const TextStyle(fontSize: 13, color: Colors.green)),
-                        Text("-🪙 ${_discountAmount.toStringAsFixed(0)} xu", style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.green)),
+                        Text("-${_discountAmount.toVND()}", style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.green)),
                       ],
                     ),
                   ],
@@ -333,7 +334,7 @@ class _CheckoutConfirmModalState extends State<CheckoutConfirmModal> {
                     children: [
                       Text("THÀNH TIỀN:", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : Colors.black)),
                       Text(
-                        "🪙 ${finalPrice.toStringAsFixed(0)} xu",
+                        finalPrice.toVND(),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -348,7 +349,7 @@ class _CheckoutConfirmModalState extends State<CheckoutConfirmModal> {
                     children: [
                       Text("Số dư hiện tại:", style: TextStyle(fontSize: 12, color: isDark ? Colors.white54 : Colors.black54)),
                       Text(
-                        "🪙 ${balance.toStringAsFixed(0)} xu",
+                        balance.toVND(),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -395,7 +396,7 @@ class _CheckoutConfirmModalState extends State<CheckoutConfirmModal> {
                           const Icon(Icons.bolt, color: Colors.white, size: 20),
                           const SizedBox(width: 8),
                           Text(
-                            hasEnoughBalance ? "XÁC NHẬN MUA (+${widget.product.dopamineRating} DOPAMINE)" : "SỐ DƯ KHÔNG ĐỦ",
+                            hasEnoughBalance ? "XÁC NHẬN MUA NGAY" : "SỐ DƯ KHÔNG ĐỦ",
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,

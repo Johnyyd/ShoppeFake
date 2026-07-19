@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:confetti/confetti.dart';
 import '../models/order.dart';
 import '../theme/app_theme.dart';
+import '../utils/currency_format.dart';
 
 class CheckoutModal extends StatefulWidget {
   final CheckoutResult result;
@@ -106,7 +107,7 @@ class _CheckoutModalState extends State<CheckoutModal>
                   const SizedBox(height: 16),
                   Text(
                     widget.result.animationTrigger == 'EXTREME_CONFETTI_BURST'
-                        ? '🚀 DOPAMINE SURGE!'
+                        ? '🚀 MUA SẮM THÀNH CÔNG!'
                         : '🎉 THÀNH CÔNG!',
                     style: const TextStyle(
                       fontSize: 22,
@@ -142,23 +143,11 @@ class _CheckoutModalState extends State<CheckoutModal>
                     child: Column(
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             _buildStatColumn(
-                              'Dopamine Nhận',
-                              '+${widget.result.dopamineHitsAwarded} ⚡',
-                              Colors.amber,
-                            ),
-                            Container(
-                              width: 1,
-                              height: 36,
-                              color: isDark
-                                  ? Colors.white.withValues(alpha: 0.1)
-                                  : Colors.grey.shade300,
-                            ),
-                            _buildStatColumn(
                               'Số Dư Mới',
-                              '🪙 ${widget.result.newVirtualBalance.toStringAsFixed(0)}',
+                              widget.result.newVirtualBalance.toVND(),
                               AppTheme.primaryOrange,
                             ),
                           ],
@@ -174,7 +163,7 @@ class _CheckoutModalState extends State<CheckoutModal>
                               const SizedBox(width: 6),
                               Flexible(
                                 child: Text(
-                                  "Tiết kiệm được nhờ voucher: -🪙 ${widget.result.discountAmount.toStringAsFixed(0)} xu",
+                                  "Tiết kiệm được nhờ voucher: -${widget.result.discountAmount.toVND()}",
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
@@ -209,7 +198,7 @@ class _CheckoutModalState extends State<CheckoutModal>
                         elevation: 0,
                       ),
                       child: const Text(
-                        'TIẾP TỤC MUA SẮM ẢO',
+                        'TIẾP TỤC MUA SẮM',
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 14,

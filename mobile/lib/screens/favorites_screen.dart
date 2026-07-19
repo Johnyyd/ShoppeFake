@@ -111,7 +111,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         const Text(
-                                          'Kích Hoạt Hưng Phấn Dopamine',
+                                          'Danh Sách Sản Phẩm Yêu Thích',
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w900,
@@ -120,7 +120,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          'Bạn đang theo dõi ${favProducts.length} sản phẩm yêu thích. Mỗi lần thả tim giúp tăng +5 Dopamine vào hồ sơ!',
+                                          'Bạn đang theo dõi ${favProducts.length} sản phẩm yêu thích. Nhận thông báo giảm giá nhanh nhất cho các sản phẩm đã lưu!',
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: isDark ? Colors.white70 : Colors.black87,

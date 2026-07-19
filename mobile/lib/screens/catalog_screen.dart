@@ -7,6 +7,7 @@ import '../theme/app_theme.dart';
 import '../widgets/product_card.dart';
 import '../widgets/checkout_modal.dart';
 import '../widgets/checkout_confirm_modal.dart';
+import '../utils/currency_format.dart';
 
 class CatalogScreen extends StatelessWidget {
   const CatalogScreen({super.key});
@@ -78,35 +79,9 @@ class CatalogScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          // Dopamine Level badge
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: Colors.amber.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
-            ),
-            alignment: Alignment.center,
-            child: Row(
-              children: [
-                const Icon(Icons.bolt, color: Colors.amber, size: 15),
-                const SizedBox(width: 3),
-                Text(
-                  '${user?.dopamineLevel ?? 0} HITS',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.amber,
-                    fontFeatures: [FontFeature.tabularFigures()],
-                  ),
-                ),
-              ],
-            ),
-          ),
           // Virtual Balance badge
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: AppTheme.primaryOrange.withValues(alpha: 0.15),
@@ -114,19 +89,13 @@ class CatalogScreen extends StatelessWidget {
               border: Border.all(color: AppTheme.primaryOrange.withValues(alpha: 0.3)),
             ),
             alignment: Alignment.center,
-            child: Row(
-              children: [
-                const Text('🪙 ', style: TextStyle(fontSize: 12)),
-                Text(
-                  user?.virtualBalance.toStringAsFixed(0) ?? "0",
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.primaryOrange,
-                    fontFeatures: [FontFeature.tabularFigures()],
-                  ),
-                ),
-              ],
+            child: Text(
+              (user?.virtualBalance ?? 0).toVND(),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                color: AppTheme.primaryOrange,
+              ),
             ),
           ),
           IconButton(
@@ -172,7 +141,7 @@ class CatalogScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'CHỢ ẢO SHOPPE FAKE - SĂN DOPAMINE',
+                                  'SIÊU THỊ TRỰC TUYẾN SHOPPE FAKE',
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w800,

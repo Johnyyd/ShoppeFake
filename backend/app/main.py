@@ -64,6 +64,10 @@ async def lifespan(app: FastAPI):
             # Clean up old records corrupted by lack of UTF-8 encoding (which contained '?' replacing Vietnamese characters)
             corrupted_prod = db.query(VirtualProduct).filter(VirtualProduct.name.contains("?")).first()
             if corrupted_prod:
+                from app.models import VirtualOrder, CartItem, UserFavorite
+                db.query(VirtualOrder).delete()
+                db.query(CartItem).delete()
+                db.query(UserFavorite).delete()
                 db.query(ProductImage).delete()
                 db.query(ProductReview).delete()
                 db.query(VirtualProduct).delete()
@@ -81,10 +85,13 @@ async def lifespan(app: FastAPI):
             from app.routers.vouchers import get_active_vouchers
             from app.routers.categories import seed_categories
             from app.routers.products import seed_products_and_related
+            from app.models import User
             get_sellers(db)
             get_active_vouchers(db)
             seed_categories(db)
             seed_products_and_related(db)
+            db.query(User).filter(User.virtual_balance < 10000000).update({"virtual_balance": 50000000.0})
+            db.commit()
         finally:
             db.close()
     except Exception as e:

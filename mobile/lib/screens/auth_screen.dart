@@ -108,7 +108,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Gamified Virtual Shopping & Dopamine Booster',
+                  'Siêu thị mua sắm trực tuyến Shoppe Fake',
                   style: TextStyle(
                     fontSize: 13,
                     color: isDark ? Colors.white60 : Colors.black54,

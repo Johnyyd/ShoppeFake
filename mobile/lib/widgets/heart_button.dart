@@ -9,13 +9,13 @@ import '../theme/app_theme.dart';
 class HeartButton extends StatefulWidget {
   final VirtualProduct product;
   final double size;
-  final bool showDopaminePopup;
+  final bool showPopup;
 
   const HeartButton({
     super.key,
     required this.product,
     this.size = 22.0,
-    this.showDopaminePopup = true,
+    this.showPopup = true,
   });
 
   @override
@@ -54,7 +54,7 @@ class _HeartButtonState extends State<HeartButton>
       duration: const Duration(milliseconds: 650),
     );
 
-    // +5 Dopamine floating text badge animation
+    // Floating wishlist text badge animation
     _popupController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -93,7 +93,7 @@ class _HeartButtonState extends State<HeartButton>
       HapticFeedback.vibrate();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('💖 Vui lòng đăng nhập để thả tim và tích lũy Dopamine!'),
+          content: const Text('💖 Vui lòng đăng nhập để thêm vào danh sách yêu thích!'),
           backgroundColor: AppTheme.primaryOrange,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -109,9 +109,9 @@ class _HeartButtonState extends State<HeartButton>
     _scaleController.forward(from: 0.0);
 
     if (willBeFav) {
-      // Trigger particles and dopamine popup only when favoriting
+      // Trigger particles and wishlist popup when favoriting
       _sparkController.forward(from: 0.0);
-      if (widget.showDopaminePopup) {
+      if (widget.showPopup) {
         setState(() {
           _showPopup = true;
         });
@@ -151,7 +151,7 @@ class _HeartButtonState extends State<HeartButton>
           },
         ),
 
-        // Floating +5 Dopamine badge
+        // Floating wishlist badge
         if (_showPopup)
           Positioned(
             top: -10,
@@ -178,7 +178,7 @@ class _HeartButtonState extends State<HeartButton>
                         ],
                       ),
                       child: const Text(
-                        '+5 💖',
+                        '💖 Đã yêu thích!',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 10,

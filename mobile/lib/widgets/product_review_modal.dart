@@ -301,7 +301,7 @@ class _ProductReviewModalState extends State<ProductReviewModal>
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Đánh giá đơn hoàn thành nhận ngay +50 xu & +30 Dopamine ⚡!',
+                      'Đánh giá đơn hoàn thành nhận ngay +5.000đ vào tài khoản!',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -434,7 +434,7 @@ class _ProductReviewModalState extends State<ProductReviewModal>
           ),
           const SizedBox(height: 18),
           Text(
-            widget.isCompletedOrder ? '🎉 DOPAMINE SURGE!' : '🎉 Cảm ơn bạn!',
+            widget.isCompletedOrder ? '🎉 ĐÁNH GIÁ THÀNH CÔNG!' : '🎉 Cảm ơn bạn!',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w900,
@@ -464,15 +464,9 @@ class _ProductReviewModalState extends State<ProductReviewModal>
                 border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildRewardColumn('Dopamine', '+30 ⚡', Colors.amber),
-                  Container(
-                    width: 1,
-                    height: 36,
-                    color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade300,
-                  ),
-                  _buildRewardColumn('Thưởng Xu', '+50 🪙', AppTheme.primaryOrange),
+                  _buildRewardColumn('Thưởng Tiền', '+5.000đ', AppTheme.primaryOrange),
                 ],
               ),
             ),

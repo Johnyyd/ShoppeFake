@@ -5,6 +5,7 @@ import '../providers/shoppe_provider.dart';
 import '../models/cart_item.dart';
 import '../theme/app_theme.dart';
 import '../widgets/checkout_modal.dart';
+import '../utils/currency_format.dart';
 
 class CartScreen extends StatefulWidget {
   final Function(int) onNavigateToTab;
@@ -179,7 +180,7 @@ class _CartScreenState extends State<CartScreen> {
                                           Icon(Icons.local_offer, size: 13, color: isSelected ? Colors.white : AppTheme.primaryOrange),
                                           const SizedBox(width: 4),
                                           Text(
-                                            '${v.code} (${v.discountType == "PERCENT" ? "-${v.discountValue.toStringAsFixed(0)}%" : "-${v.discountValue.toStringAsFixed(0)}xu"})',
+                                            '${v.code} (${v.discountType == "PERCENT" ? "-${v.discountValue.toStringAsFixed(0)}%" : "-${v.discountValue.toVND()}"})',
                                             style: TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.bold,
@@ -207,7 +208,7 @@ class _CartScreenState extends State<CartScreen> {
                                     controller: _voucherController,
                                     style: TextStyle(fontSize: 13, color: isDark ? Colors.white : Colors.black87),
                                     decoration: InputDecoration(
-                                      hintText: 'Nhập mã giảm giá (VD: DOPAMINE50)',
+                                      hintText: 'Nhập mã giảm giá (VD: MALL50K)',
                                       hintStyle: TextStyle(fontSize: 12, color: isDark ? Colors.white38 : Colors.black38),
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                       filled: true,
@@ -240,7 +241,7 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    '🪙 ${provider.cartTotalAmount.toStringAsFixed(0)} xu',
+                                    provider.cartTotalAmount.toVND(),
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w900,
@@ -329,7 +330,7 @@ class _CartScreenState extends State<CartScreen> {
                 Row(
                   children: [
                     Text(
-                      '🪙 ${item.product.priceVirtual.toStringAsFixed(0)}',
+                      item.product.priceVirtual.toVND(),
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w900,
@@ -421,7 +422,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Hãy chọn thêm các siêu phẩm để tích lũy hưng phấn Dopamine ngay!',
+              'Hãy chọn thêm các siêu phẩm chính hãng vào giỏ hàng ngay!',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: isDark ? Colors.white54 : Colors.black54),
             ),

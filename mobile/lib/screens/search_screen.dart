@@ -203,7 +203,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   child: Row(
                     children: [
                       _buildSortPill(context, 'Phổ biến', 'popular', provider.sortBy, isDark),
-                      _buildSortPill(context, 'Dopamine max', 'dopamine', provider.sortBy, isDark),
                       _buildSortPill(context, 'Giá thấp tới cao', 'price_asc', provider.sortBy, isDark),
                       _buildSortPill(context, 'Giá cao tới thấp', 'price_desc', provider.sortBy, isDark),
                     ],

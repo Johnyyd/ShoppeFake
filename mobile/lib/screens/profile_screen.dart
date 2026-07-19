@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/shoppe_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/currency_format.dart';
 
 import 'favorites_screen.dart';
 
@@ -67,47 +68,20 @@ class ProfileScreen extends StatelessWidget {
                               fontWeight: FontWeight.w900,
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.25),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.bolt, color: Colors.amber, size: 14),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      '${user?.dopamineLevel ?? 0} HITS',
-                                      style: const TextStyle(
-                                        color: Colors.amber,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              (user?.virtualBalance ?? 0).toVND(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
                               ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  '🪙 ${user?.virtualBalance.toStringAsFixed(0) ?? 0} xu',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
@@ -118,7 +92,7 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
               Text(
-                'TIỆN ÍCH SĂN DOPAMINE',
+                'TIỆN ÍCH MUA SẮM',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -139,7 +113,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   _buildQuickAction(Icons.confirmation_number, 'Trạm Voucher', Colors.orange, isDark),
                   _buildQuickAction(Icons.storefront, 'Gian hàng Mall', Colors.blue, isDark),
-                  _buildQuickAction(Icons.local_fire_department, 'Săn Dopamine', Colors.red, isDark),
+                  _buildQuickAction(Icons.card_giftcard, 'Săn Quà', Colors.red, isDark),
                   _buildQuickAction(
                     Icons.favorite,
                     'Đã thích',

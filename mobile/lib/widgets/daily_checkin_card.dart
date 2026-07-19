@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:confetti/confetti.dart';
-import '../providers/shoppe_provider.dart';
 import '../models/user.dart';
 import '../theme/app_theme.dart';
+import '../providers/shoppe_provider.dart';
+import '../utils/currency_format.dart';
 
 class DailyCheckinCard extends StatefulWidget {
   const DailyCheckinCard({super.key});
@@ -21,13 +22,13 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
   late Animation<double> _scaleAnimation;
 
   final List<Map<String, dynamic>> _rewards = [
-    {'day': 1, 'coins': 50, 'dopamine': 10},
-    {'day': 2, 'coins': 70, 'dopamine': 15},
-    {'day': 3, 'coins': 100, 'dopamine': 20},
-    {'day': 4, 'coins': 120, 'dopamine': 25},
-    {'day': 5, 'coins': 150, 'dopamine': 30},
-    {'day': 6, 'coins': 200, 'dopamine': 40},
-    {'day': 7, 'coins': 300, 'dopamine': 50},
+    {'day': 1, 'coins': 100000},
+    {'day': 2, 'coins': 120000},
+    {'day': 3, 'coins': 150000},
+    {'day': 4, 'coins': 200000},
+    {'day': 5, 'coins': 250000},
+    {'day': 6, 'coins': 300000},
+    {'day': 7, 'coins': 500000},
   ];
 
   @override
@@ -60,12 +61,22 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
     setState(() => _isCheckingIn = false);
 
     if (result != null) {
-      // Trigger celebratory overlay with Confetti and spring bounce
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => _DailyCheckinCelebrationModal(result: result),
-      );
+      if (result.rewardCoins > 0) {
+        // Trigger celebratory overlay with Confetti and spring bounce
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => _DailyCheckinCelebrationModal(result: result),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result.message),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } else if (provider.errorMessage != null) {
       HapticFeedback.vibrate();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -84,10 +95,11 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
     if (user == null) return const SizedBox.shrink();
 
     final todayStr = DateTime.now().toIso8601String().split('T')[0];
-    final isCheckedInToday = user.lastCheckinDate == todayStr;
+    final vnTodayStr = DateTime.now().toUtc().add(const Duration(hours: 7)).toIso8601String().split('T')[0];
+    final isCheckedInToday = user.lastCheckinDate == todayStr || user.lastCheckinDate == vnTodayStr;
     final currentStreak = user.checkinStreak;
     final nextDayIndex = isCheckedInToday
-        ? ((currentStreak - 1) % 7)
+        ? ((currentStreak - 1).clamp(0, 99999) % 7)
         : (currentStreak % 7);
 
     final theme = Theme.of(context);
@@ -155,7 +167,7 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
                             Text(
                               isCheckedInToday
                                   ? 'Đã điểm danh hôm nay! (Streak: $currentStreak ngày)'
-                                  : 'Tích streak nhận tới 300🪙 xu ảo',
+                                  : 'Tích streak nhận tới 500.000đ mỗi ngày',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark ? Colors.white60 : Colors.black54,
@@ -249,7 +261,7 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
                           isCompleted
                               ? const Icon(Icons.check_circle_rounded, color: Colors.green, size: 20)
                               : Text(
-                                  '+$coins🪙',
+                                  '+${(coins / 1000).toStringAsFixed(0)}k',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
@@ -286,7 +298,7 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
                           )
                         : const Icon(Icons.card_giftcard_rounded, size: 20),
                     label: Text(
-                      _isCheckingIn ? 'ĐANG ĐIỂM DANH...' : '🎁 ĐIỂM DANH NHẬN +${_rewards[nextDayIndex]['coins']} XU NGAY',
+                      _isCheckingIn ? 'ĐANG ĐIỂM DANH...' : '🎁 ĐIỂM DANH NHẬN +${(_rewards[nextDayIndex]['coins'] as num).toVND()} NGAY',
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 13,
@@ -314,14 +326,14 @@ class _DailyCheckinCardState extends State<DailyCheckinCard>
                   color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.check_circle, color: Colors.green, size: 18),
-                    SizedBox(width: 8),
+                    const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                    const SizedBox(width: 8),
                     Text(
-                      'Hôm nay bạn đã điểm danh thành công!',
-                      style: TextStyle(
+                      '✅ Đã điểm danh thành công! (Streak: $currentStreak ngày)',
+                      style: const TextStyle(
                         color: Colors.green,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
@@ -481,30 +493,15 @@ class _DailyCheckinCelebrationModalState
                       border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Column(
                           children: [
-                            const Text('Thưởng Xu', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                            const Text('Thưởng Điểm Danh', style: TextStyle(fontSize: 11, color: Colors.grey)),
                             const SizedBox(height: 4),
                             Text(
-                              '+${widget.result.rewardCoins.toStringAsFixed(0)} 🪙',
+                              '+${widget.result.rewardCoins.toVND()}',
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppTheme.primaryOrange),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          width: 1,
-                          height: 36,
-                          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade300,
-                        ),
-                        Column(
-                          children: [
-                            const Text('Dopamine', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                            const SizedBox(height: 4),
-                            Text(
-                              '+${widget.result.rewardDopamine} ⚡',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.amber),
                             ),
                           ],
                         ),
